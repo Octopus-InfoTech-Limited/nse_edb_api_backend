@@ -4,10 +4,24 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>EDBGeogGame</groupId>
 	<artifactId>EDBGeogGame</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
+	<properties>
+		<mavenoutputdir>${project.build.directory}</mavenoutputdir>
+	</properties>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/resources</directory>
+			</resource>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -22,8 +36,10 @@
 				<version>3.2.3</version>
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
+					<warName>EDBGeogGame</warName>
                     <downloadSources>true</downloadSources>
                     <downloadJavadocs>true</downloadJavadocs>
+					<outputDirectory>${mavenoutputdir}</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>
