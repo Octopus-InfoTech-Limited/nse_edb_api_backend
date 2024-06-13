@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+   "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+   "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.devMode" value="true" />
+	<constant name="struts.enable.SlashesInActionNames" value="true"/>
+	<constant name="struts.mapper.alwaysSelectFullNamespace" value="false"/>
+	<constant name="struts.patternMatcher" value="regex" />
+	<constant name="struts.action.extension" value=",do" />
+	<package name="web" extends="struts-default" namespace="/">
+
+		<global-results>
+			<result name="exception">/WEB-INF/web/exception.jsp</result>
+			<result name="authfail">/WEB-INF/web/authfail.jsp</result>
+			<result name="error">/WEB-INF/web/error.jsp</result>
+		</global-results>
+		
+		<action name="sso_endpoint" class="com.octopus_tech.goc.action.web.EDConnectSSOCallbackRedirectAction">
+		</action>
+		
+		<action name="{[0-9a-zA-Z_-]+}.jsp" class="org.apache.struts2.dispatcher.DefaultActionSupport">
+			<result name="success">/{1}.jsp</result>
+		</action>
+		
+	</package>
+	
+	<!-- 
+	<package name="admin" extends="struts-default" namespace="/admin">
+		<global-results>
+			<result name="exception">/WEB-INF/web/exception.jsp</result>
+			<result name="error">/WEB-INF/web/error.jsp</result>
+			<result name="success">/WEB-INF/web/admin/index.jsp</result>
+		</global-results>
+		
+		<action name="announcement/list" class="com.octopus_tech.goc.action.web.admin.AnnouncementAction">
+			<param name="_mode">get</param>
+		</action>
+		
+		<action name="announcement/list/{[0-9]+}" class="com.octopus_tech.goc.action.web.admin.AnnouncementAction">
+			<param name="_mode">get</param>
+			<param name="page">{1}</param>
+		</action>
+		
+		<action name="announcement/add" class="com.octopus_tech.goc.action.web.admin.AnnouncementAction">
+			<param name="_mode">add</param>
+		</action>
+		
+		<action name="announcement/update/{[0-9]+}" class="com.octopus_tech.goc.action.web.admin.AnnouncementAction">
+			<param name="_mode">update</param>
+			<param name="id">{1}</param>
+		</action>
+		
+		<action name="announcement/delete/{[0-9]+}" class="com.octopus_tech.goc.action.web.admin.AnnouncementAction">
+			<param name="_mode">delete</param>
+			<param name="id">{1}</param>
+		</action>
+		
+	</package>
+	-->
+	
+	<package name="api" extends="struts-default" namespace="/api">
+		
+		<global-results>
+			<result name="exception">/WEB-INF/api/exception.jsp</result>
+			<result name="authfail">/WEB-INF/api/authfail.jsp</result>
+			<result name="api">/WEB-INF/api/json.jsp</result>
+			<result name="success">/WEB-INF/api/json.jsp</result>
+			<result name="error">/WEB-INF/api/error.jsp</result>
+		</global-results>
+		
+		
+		<action name="authentication" class="com.octopus_tech.goc.action.api.AuthenticationAction">
+			<param name="_mode">sso</param>
+		</action>
+		
+		<action name="signout" class="com.octopus_tech.goc.action.api.AuthenticationAction">
+			<param name="_mode">logout</param>
+		</action>
+		
+		<action name="sso" class="com.octopus_tech.goc.action.api.EDConnectSSOCallbackAction">
+		</action>
+		
+		<action name="profile" class="com.octopus_tech.goc.action.api.ProfileAction">
+		</action>
+		
+		<!-- 
+		<action name="game" class="com.octopus_tech.goc.action.api.GameAction">
+		</action> 
+		
+		<action name="game/{[0-9]+}/log" class="com.octopus_tech.goc.action.api.GameLogAction">
+			<param name="game_id">{1}</param>
+		</action>
+		
+		<action name="leaderboard/{[0-9]+}" class="com.octopus_tech.goc.action.api.LeaderBoardAction">
+			<param name="school_id">{1}</param>
+		</action>
+		<action name="leaderboard" class="com.octopus_tech.goc.action.api.LeaderBoardAction">
+		</action>
+		-->
+		
+		
+		<action name="announcement" class="com.octopus_tech.goc.action.api.AnnouncementAction">
+		</action>
+		
+		<action name="announcement/{[0-9]+}" class="com.octopus_tech.goc.action.api.AnnouncementAction">
+			<param name="id">{1}</param>
+		</action>
+		
+		<action name="news" class="com.octopus_tech.goc.action.api.NewsAction">
+		</action>
+		
+		<action name="news/{[0-9]+}" class="com.octopus_tech.goc.action.api.NewsAction">
+			<param name="id">{1}</param>
+		</action>
+		
+		<action name="game/{[0-9]+}/score" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="gameId">{1}</param>
+		</action>
+		
+		<action name="markClick/{[0-9]+}" class="com.octopus_tech.goc.action.api.MarkClickAction">
+			<param name="itemId">{1}</param>
+			<param name="method">markClick</param>
+		</action>
+		
+		<action name="countClickRecord" class="com.octopus_tech.goc.action.api.MarkClickAction">
+			<param name="method">countClickRecord</param>
+		</action>
+		
+		<action name="listClickRecord" class="com.octopus_tech.goc.action.api.MarkClickAction">
+			<param name="method">listClickRecord</param>
+		</action>
+		
+		<action name="login" class="com.octopus_tech.goc.action.api.LoginAction">
+		</action>
+		
+		<action name="hashPwd" class="com.octopus_tech.goc.action.api.LoginAction">
+			<param name="method">hashPwd</param>
+		</action>
+		
+		<action name="studentScoreRank" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">studentScoreRank</param>
+		</action>
+		
+		<action name="schoolStudentNumRank" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">schoolStudentNumRank</param>
+		</action>
+		
+		<action name="schoolScoreRank" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">schoolScoreRank</param>
+		</action>
+		
+		<action name="competitionScorePri" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">competitionScorePri</param>
+		</action>
+		
+		<action name="competitionScoreSec" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">competitionScoreSec</param>
+		</action>
+		
+		<action name="userListCount" class="com.octopus_tech.goc.action.api.ReportAction">
+			<param name="method">userListCount</param>
+		</action>
+		
+		<action name="schoolListCount" class="com.octopus_tech.goc.action.api.ReportAction">
+			<param name="method">schoolListCount</param>
+		</action>
+		
+		<action name="dailyLogin" class="com.octopus_tech.goc.action.api.DailyAction">
+			<param name="method">login</param>
+		</action>		
+		
+	</package>
+</struts>

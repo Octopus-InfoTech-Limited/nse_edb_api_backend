@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>EDBGeogGame</display-name>
+
+	<!-- <filter>
+		<display-name>SetCharacterEncoding</display-name>
+		<filter-name>SetCharacterEncoding</filter-name>
+		<filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+		<init-param>
+			<description />
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>SetCharacterEncoding</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+	
+	<filter>
+	    <filter-name>CharacterSetFilter</filter-name>
+	    <filter-class>com.octopus_tech.goc.CharacterSetFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+	    <filter-name>CharacterSetFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<filter>
+		<filter-name>struts2</filter-name>
+		<filter-class>com.octopus_tech.share.filter.StructFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>HTMLUtf8ify</filter-name>
+		<filter-class>com.octopus_tech.share.filter.HTMLUtf8ify</filter-class>
+	</filter>
+
+
+	<filter-mapping>
+		<filter-name>HTMLUtf8ify</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>struts2</filter-name>
+		<url-pattern>/*</url-pattern>
+		<url-pattern>/api/*</url-pattern>
+	</filter-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+	<listener>
+		<listener-class>com.octopus_tech.share.ShareServletContextListener</listener-class>
+	</listener>
+
+	<error-page>
+		<error-code>401</error-code>
+		<location>/WEB-INF/web/error.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/WEB-INF/web/error.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/web/error.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/WEB-INF/web/error.jsp</location>
+	</error-page>
+
+	<servlet>
+		<servlet-name>default</servlet-name>
+		<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>0</param-value>
+		</init-param>
+		<init-param>
+			<param-name>fileEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>listings</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<jsp-config>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/fmt</taglib-uri>
+			<taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/fmt-rt</taglib-uri>
+			<taglib-location>/WEB-INF/tld/fmt-rt.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
+			<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/core-rt</taglib-uri>
+			<taglib-location>/WEB-INF/tld/c-rt.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/sql</taglib-uri>
+			<taglib-location>/WEB-INF/tld/sql.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/sql-rt</taglib-uri>
+			<taglib-location>/WEB-INF/tld/sql-rt.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/x</taglib-uri>
+			<taglib-location>/WEB-INF/tld/x.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/x-rt</taglib-uri>
+			<taglib-location>/WEB-INF/tld/x-rt.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://www.octopus-tech.com/share</taglib-uri>
+			<taglib-location>/WEB-INF/tld/share.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://www.octopus-tech.com/goc</taglib-uri>
+			<taglib-location>/WEB-INF/tld/goc.tld</taglib-location>
+		</taglib>
+	</jsp-config>
+</web-app>

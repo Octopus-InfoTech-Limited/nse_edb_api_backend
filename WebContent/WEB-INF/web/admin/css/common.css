@@ -1,0 +1,42 @@
+#root
+{
+	width: 100%;
+	margin-left: 370px;
+}
+
+.left-drawer
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 350px;
+	background: #000;
+	color: white;
+	
+	padding-top: 16px;
+}
+
+.left-drawer .category
+{
+	font-size: larger;
+	font-weight: bold;
+	padding: 0 8px;
+}
+
+.left-drawer .item
+{
+	cursor: pointer;
+	padding: 3px 16px;
+}
+
+.left-drawer .item:hover
+{
+	background: rgba(255,255,255,0.4);
+}
+
+.left-drawer a
+{
+	color: white;
+	text-decoration: none;
+}
