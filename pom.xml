@@ -37,8 +37,6 @@
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
 					<warName>EDBGeogGame</warName>
-                    <downloadSources>true</downloadSources>
-                    <downloadJavadocs>true</downloadJavadocs>
 					<outputDirectory>${mavenoutputdir}</outputDirectory>
 				</configuration>
 			</plugin>

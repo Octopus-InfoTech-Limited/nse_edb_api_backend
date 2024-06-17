@@ -7,17 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.octopus_tech.goc.helpers.StringResultCache;
+import com.octopus_tech.share.util.EnhancedProperties;
+import com.octopus_tech.share.util.PropertiesHelper;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 
 import com.octopus_tech.goc.crud.GameQ;
 import com.octopus_tech.goc.crud.GameScoreQ;
-import com.octopus_tech.goc.crud.UserQ;
 import com.octopus_tech.goc.model.Game;
 import com.octopus_tech.goc.model.GameResult;
 import com.octopus_tech.goc.model.GameScore;
 import com.octopus_tech.goc.model.User;
-import com.octopus_tech.share.action.DBHelperBasicAction;
 import com.octopus_tech.share.db.DBHelper;
 
 public class GameScoreAction extends BasicApiAction
@@ -32,16 +33,30 @@ public class GameScoreAction extends BasicApiAction
 	
 	public String json;
 	public String method;
-	
+
+	private static String cachedGameScoreFilterStudentScoreRank = null;
+	private static String cachedGameScoreFilterSchoolStudentNumRank = null;
+	private static String cachedGameScoreFilterSchoolScoreRank = null;
+	private static String cachedGameScoreFilterCompetitionScorePri = null;
+	private static String cachedGameScoreFilterCompetitionScoreSec = null;
+
+	private static final StringResultCache resultCacheForGameScoreFilterStudentScoreRank = new StringResultCache();
+	private static final StringResultCache resultCacheForGameScoreFilterSchoolStudentNumRank = new StringResultCache();
+	private static final StringResultCache resultCacheForGameScoreFilterSchoolScoreRank = new StringResultCache();
+	private static final StringResultCache resultCacheForGameScoreFilterCompetitionScorePri = new StringResultCache();
+	private static final StringResultCache resultCacheForGameScoreFilterCompetitionScoreSec = new StringResultCache();
+
 	@Override
 	protected String execute(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception
 	{
-		User user = (User)session.get("user");
-		if(user == null)
-		{
-			return ERROR;
-		}
-		
+		EnhancedProperties ep = PropertiesHelper.getApplicationProperties(servletContext);
+
+		cachedGameScoreFilterStudentScoreRank = ep.getComplexProperty("gamescore.filter.studentscorerank", " u.roles = 'student' ");
+		cachedGameScoreFilterSchoolStudentNumRank = ep.getComplexProperty("gamescore.filter.schoolstudentnumrank", " u.roles = 'student' ");
+		cachedGameScoreFilterSchoolScoreRank = ep.getComplexProperty("gamescore.filter.schoolscorerank", " u.roles = 'student' ");
+		cachedGameScoreFilterCompetitionScorePri = ep.getComplexProperty("gamescore.filter.competitionscorepri", " u.roles = 'student' and u.school_level = 1 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " );
+		cachedGameScoreFilterCompetitionScoreSec = ep.getComplexProperty("gamescore.filter.competitionscoresec", " u.roles = 'student' and u.school_level = 2 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " );
+
 		if ("studentScoreRank".equals(method)) {
 			return studentScoreRank(dbHelper, logger, responseMap);
 		} else if ("schoolStudentNumRank".equals(method)) {
@@ -52,6 +67,12 @@ public class GameScoreAction extends BasicApiAction
 			return competitionScorePri(dbHelper, logger, responseMap);
 		} else if ("competitionScoreSec".equals(method)) {
 			return competitionScoreSec(dbHelper, logger, responseMap);
+		}
+
+		User user = (User)session.get("user");
+		if(user == null)
+		{
+			return ERROR;
 		}
 		
 		if("GET".equals(request.getMethod()))
@@ -167,7 +188,14 @@ public class GameScoreAction extends BasicApiAction
 		return ERROR;
 	}
 
-	protected String studentScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String studentScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+
+		String cachedResult = resultCacheForGameScoreFilterStudentScoreRank.getCachedResult();
+		if (cachedResult != null) {
+			json = cachedResult;
+			return SUCCESS;
+		}
+
 		String sqlStr = "select "
 				+ "u.id as user_id, "
 				+ "u.name_zh as user_name_zh, "
@@ -182,26 +210,27 @@ public class GameScoreAction extends BasicApiAction
 				+ "from user u "
 				+ "inner join game_score gs on u.id = gs.user_id "
 				+ "inner join school s on u.school_id = s.id "
-				+ "where u.roles = 'student' "
+				+ "where  "
+				+ "  " + cachedGameScoreFilterStudentScoreRank + "  "
 				+ "group by u.id "
 				+ "order by total_score desc, u.id ";
 		
 		dbHelper.beginTransactionIfNeeded();
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
-//		dbHelper.commit();
-		
 		json = gson.toJson(responseMap);
-//		System.out.println(json);
-//		try {
-//			dbHelper.commit();
-//		}catch(Exception e) {
-//			
-//		}
+		resultCacheForGameScoreFilterStudentScoreRank.cacheStringResult(json);
 		return SUCCESS;
 	}
 
-	protected String schoolStudentNumRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String schoolStudentNumRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+
+		String cachedResult = resultCacheForGameScoreFilterSchoolStudentNumRank.getCachedResult();
+		if (cachedResult != null) {
+			json = cachedResult;
+			return SUCCESS;
+		}
+
 		String sqlStr = "select "
 				+ "s.id as school_id, "
 				+ "s.name_zh as school_name_zh, "
@@ -209,26 +238,27 @@ public class GameScoreAction extends BasicApiAction
 				+ "count(*) as student_num "
 				+ "from user u "
 				+ "inner join school s on u.school_id = s.id "
-				+ "where u.roles = 'student' "
+				+ "where "
+				+ "  " + cachedGameScoreFilterSchoolStudentNumRank + "  "
 				+ "group by s.id "
 				+ "order by student_num desc, s.id ";
 		
 		dbHelper.beginTransactionIfNeeded();
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
-//		dbHelper.commit();
-		
 		json = gson.toJson(responseMap);
-//		System.out.println(json);
-//		try {
-//			dbHelper.commit();
-//		}catch(Exception e) {
-//			
-//		}
+		resultCacheForGameScoreFilterSchoolStudentNumRank.cacheStringResult(json);
 		return SUCCESS;
 	}
 	
-	protected String schoolScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String schoolScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+
+		String cachedResult = resultCacheForGameScoreFilterSchoolScoreRank.getCachedResult();
+		if (cachedResult != null) {
+			json = cachedResult;
+			return SUCCESS;
+		}
+
 		String sqlStr = "select "
 				+ "s.id as school_id, "
 				+ "s.name_zh as school_name_zh, "
@@ -237,7 +267,8 @@ public class GameScoreAction extends BasicApiAction
 				+ "from school s "
 				+ "inner join user u on u.school_id = s.id "
 				+ "inner join game_score gs on gs.user_id = u.id "
-				+ "where u.roles = 'student' "
+				+ "where "
+				+ "  " + cachedGameScoreFilterSchoolScoreRank + "  "
 				+ "group by s.id "
 				+ "order by total_score desc ";
 		
@@ -245,17 +276,18 @@ public class GameScoreAction extends BasicApiAction
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
 		json = gson.toJson(responseMap);
-//		System.out.println(json);
-//		try {
-//			dbHelper.commit();
-//		}catch(Exception e) {
-//			
-//		}
-		
+		resultCacheForGameScoreFilterSchoolScoreRank.cacheStringResult(json);
 		return SUCCESS;
 	}
 	
-	protected String competitionScorePri(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String competitionScorePri(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+
+		String cachedResult = resultCacheForGameScoreFilterCompetitionScorePri.getCachedResult();
+		if (cachedResult != null) {
+			json = cachedResult;
+			return SUCCESS;
+		}
+
 		String sqlStr = "select "
 				+ "s.id as school_id, "
 				+ "s.name_zh as school_name_zh, "
@@ -264,26 +296,26 @@ public class GameScoreAction extends BasicApiAction
 				+ "from school s "
 				+ "inner join user u on u.school_id = s.id "
 				+ "inner join game_score gs on gs.user_id = u.id "
-				+ "where u.roles = 'student' and u.school_level = 1 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%'))"
+				+ "where "
+				+ " " + cachedGameScoreFilterCompetitionScorePri + " "
 				+ "group by s.id "
 				+ "order by total_score desc ";
 		
 		dbHelper.beginTransactionIfNeeded();
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
-//		dbHelper.commit();
-		
-		json = gson.toJson(responseMap);
-//		System.out.println(json);
-//		try {
-//			dbHelper.commit();
-//		}catch(Exception e) {
-//			
-//		}
+		resultCacheForGameScoreFilterCompetitionScorePri.cacheStringResult(json);
 		return SUCCESS;
 	}
 	
-	protected String competitionScoreSec(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String competitionScoreSec(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+
+		String cachedResult = resultCacheForGameScoreFilterCompetitionScoreSec.getCachedResult();
+		if (cachedResult != null) {
+			json = cachedResult;
+			return SUCCESS;
+		}
+
 		String sqlStr = "select "
 				+ "s.id as school_id, "
 				+ "s.name_zh as school_name_zh, "
@@ -292,22 +324,16 @@ public class GameScoreAction extends BasicApiAction
 				+ "from school s "
 				+ "inner join user u on u.school_id = s.id "
 				+ "inner join game_score gs on gs.user_id = u.id "
-				+ "where u.roles = 'student' and u.school_level = 2 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%'))"
+				+ "where "
+				+ " " + cachedGameScoreFilterCompetitionScoreSec + " "
 				+ "group by s.id "
 				+ "order by total_score desc ";
 		
 		dbHelper.beginTransactionIfNeeded();
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
-//		dbHelper.commit();
-		
 		json = gson.toJson(responseMap);
-//		System.out.println(json);
-//		try {
-//			dbHelper.commit();
-//		}catch(Exception e) {
-//			
-//		}
+		resultCacheForGameScoreFilterCompetitionScoreSec.cacheStringResult(json);
 		return SUCCESS;
 	}
 }
