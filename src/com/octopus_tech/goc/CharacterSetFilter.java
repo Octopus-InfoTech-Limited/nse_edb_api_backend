@@ -16,8 +16,8 @@ public class CharacterSetFilter implements Filter {
 			throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
-        // response.setContentType("text/html; charset=UTF-8");
-        // response.setCharacterEncoding("UTF-8");
+//         response.setContentType("text/html; charset=UTF-8");
+         response.setCharacterEncoding("UTF-8");
         next.doFilter(request, response);
 	}
 
