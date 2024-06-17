@@ -150,6 +150,14 @@
 			<param name="method">schoolScoreRank</param>
 		</action>
 		
+		<action name="schoolScoreRankPri" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">schoolScoreRankPri</param>
+		</action>
+		
+		<action name="schoolScoreRankSec" class="com.octopus_tech.goc.action.api.GameScoreAction">
+			<param name="method">schoolScoreRankSec</param>
+		</action>
+		
 		<action name="competitionScorePri" class="com.octopus_tech.goc.action.api.GameScoreAction">
 			<param name="method">competitionScorePri</param>
 		</action>

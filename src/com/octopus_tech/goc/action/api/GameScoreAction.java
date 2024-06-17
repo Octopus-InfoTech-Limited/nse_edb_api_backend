@@ -37,12 +37,16 @@ public class GameScoreAction extends BasicApiAction
 	private static String cachedGameScoreFilterStudentScoreRank = null;
 	private static String cachedGameScoreFilterSchoolStudentNumRank = null;
 	private static String cachedGameScoreFilterSchoolScoreRank = null;
+	private static String cachedGameScoreFilterSchoolScoreRankPri = null;
+	private static String cachedGameScoreFilterSchoolScoreRankSec = null;
 	private static String cachedGameScoreFilterCompetitionScorePri = null;
 	private static String cachedGameScoreFilterCompetitionScoreSec = null;
 
 	private static final StringResultCache resultCacheForGameScoreFilterStudentScoreRank = new StringResultCache();
 	private static final StringResultCache resultCacheForGameScoreFilterSchoolStudentNumRank = new StringResultCache();
 	private static final StringResultCache resultCacheForGameScoreFilterSchoolScoreRank = new StringResultCache();
+	private static final StringResultCache resultCacheForGameScoreFilterSchoolScoreRankPri = new StringResultCache();
+	private static final StringResultCache resultCacheForGameScoreFilterSchoolScoreRankSec = new StringResultCache();
 	private static final StringResultCache resultCacheForGameScoreFilterCompetitionScorePri = new StringResultCache();
 	private static final StringResultCache resultCacheForGameScoreFilterCompetitionScoreSec = new StringResultCache();
 
@@ -54,6 +58,8 @@ public class GameScoreAction extends BasicApiAction
 		cachedGameScoreFilterStudentScoreRank = ep.getComplexProperty("gamescore.filter.studentscorerank", " u.roles = 'student' ");
 		cachedGameScoreFilterSchoolStudentNumRank = ep.getComplexProperty("gamescore.filter.schoolstudentnumrank", " u.roles = 'student' ");
 		cachedGameScoreFilterSchoolScoreRank = ep.getComplexProperty("gamescore.filter.schoolscorerank", " u.roles = 'student' ");
+		cachedGameScoreFilterSchoolScoreRankPri = ep.getComplexProperty("gamescore.filter.schoolscorerankpri", " u.roles = 'student' and u.school_level = 1 " );
+		cachedGameScoreFilterSchoolScoreRankSec = ep.getComplexProperty("gamescore.filter.schoolscoreranksec", " u.roles = 'student' and u.school_level = 2 " );
 		cachedGameScoreFilterCompetitionScorePri = ep.getComplexProperty("gamescore.filter.competitionscorepri", " u.roles = 'student' and u.school_level = 1 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " );
 		cachedGameScoreFilterCompetitionScoreSec = ep.getComplexProperty("gamescore.filter.competitionscoresec", " u.roles = 'student' and u.school_level = 2 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " );
 
@@ -62,11 +68,15 @@ public class GameScoreAction extends BasicApiAction
 		} else if ("schoolStudentNumRank".equals(method)) {
 			return schoolStudentNumRank(dbHelper, logger, responseMap);
 		} else if ("schoolScoreRank".equals(method)) {
-			return schoolScoreRank(dbHelper, logger, responseMap);
+			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRank, cachedGameScoreFilterSchoolScoreRank);
+		} else if ("schoolScoreRankPri".equals(method)) {
+			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRankPri, cachedGameScoreFilterSchoolScoreRankPri);
+		} else if ("schoolScoreRankSec".equals(method)) {
+			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRankSec, cachedGameScoreFilterSchoolScoreRankSec);
 		} else if ("competitionScorePri".equals(method)) {
-			return competitionScorePri(dbHelper, logger, responseMap);
+			return competitionScore(dbHelper, logger, responseMap, resultCacheForGameScoreFilterCompetitionScorePri, cachedGameScoreFilterCompetitionScorePri);
 		} else if ("competitionScoreSec".equals(method)) {
-			return competitionScoreSec(dbHelper, logger, responseMap);
+			return competitionScore(dbHelper, logger, responseMap, resultCacheForGameScoreFilterCompetitionScoreSec, cachedGameScoreFilterCompetitionScoreSec);
 		}
 
 		User user = (User)session.get("user");
@@ -251,9 +261,10 @@ public class GameScoreAction extends BasicApiAction
 		return SUCCESS;
 	}
 	
-	protected synchronized String schoolScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String schoolScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
+		StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
-		String cachedResult = resultCacheForGameScoreFilterSchoolScoreRank.getCachedResult();
+		String cachedResult = resultCacheRef.getCachedResult();
 		if (cachedResult != null) {
 			json = cachedResult;
 			return SUCCESS;
@@ -268,7 +279,7 @@ public class GameScoreAction extends BasicApiAction
 				+ "inner join user u on u.school_id = s.id "
 				+ "inner join game_score gs on gs.user_id = u.id "
 				+ "where "
-				+ "  " + cachedGameScoreFilterSchoolScoreRank + "  "
+				+ "  " + gameScoreFilter + "  "
 				+ "group by s.id "
 				+ "order by total_score desc ";
 		
@@ -276,13 +287,14 @@ public class GameScoreAction extends BasicApiAction
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
 		json = gson.toJson(responseMap);
-		resultCacheForGameScoreFilterSchoolScoreRank.cacheStringResult(json);
+		resultCacheRef.cacheStringResult(json);
 		return SUCCESS;
 	}
-	
-	protected synchronized String competitionScorePri(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
 
-		String cachedResult = resultCacheForGameScoreFilterCompetitionScorePri.getCachedResult();
+	protected synchronized String competitionScore(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
+	StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
+
+		String cachedResult = resultCacheRef.getCachedResult();
 		if (cachedResult != null) {
 			json = cachedResult;
 			return SUCCESS;
@@ -297,43 +309,14 @@ public class GameScoreAction extends BasicApiAction
 				+ "inner join user u on u.school_id = s.id "
 				+ "inner join game_score gs on gs.user_id = u.id "
 				+ "where "
-				+ " " + cachedGameScoreFilterCompetitionScorePri + " "
+				+ " " + gameScoreFilter + " "
 				+ "group by s.id "
 				+ "order by total_score desc ";
 		
 		dbHelper.beginTransactionIfNeeded();
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
-		resultCacheForGameScoreFilterCompetitionScorePri.cacheStringResult(json);
-		return SUCCESS;
-	}
-	
-	protected synchronized String competitionScoreSec(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
-
-		String cachedResult = resultCacheForGameScoreFilterCompetitionScoreSec.getCachedResult();
-		if (cachedResult != null) {
-			json = cachedResult;
-			return SUCCESS;
-		}
-
-		String sqlStr = "select "
-				+ "s.id as school_id, "
-				+ "s.name_zh as school_name_zh, "
-				+ "s.name_en as school_name_en, "
-				+ "sum(gs.score) as total_score "
-				+ "from school s "
-				+ "inner join user u on u.school_id = s.id "
-				+ "inner join game_score gs on gs.user_id = u.id "
-				+ "where "
-				+ " " + cachedGameScoreFilterCompetitionScoreSec + " "
-				+ "group by s.id "
-				+ "order by total_score desc ";
-		
-		dbHelper.beginTransactionIfNeeded();
-		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
-		responseMap.put("list", query.getResultList());
-		json = gson.toJson(responseMap);
-		resultCacheForGameScoreFilterCompetitionScoreSec.cacheStringResult(json);
+		resultCacheRef.cacheStringResult(json);
 		return SUCCESS;
 	}
 }
