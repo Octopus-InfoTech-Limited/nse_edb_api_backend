@@ -235,7 +235,7 @@ public class GameScoreAction extends BasicApiAction
 	protected synchronized String studentScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
 												   StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
-		String cachedResult = resultCacheForGameScoreFilterStudentScoreRank.getCachedResult();
+		String cachedResult = resultCacheRef.getCachedResult();
 		if (cachedResult != null) {
 			json = cachedResult;
 			return SUCCESS;
@@ -256,7 +256,7 @@ public class GameScoreAction extends BasicApiAction
 				+ "inner join game_score gs on u.id = gs.user_id "
 				+ "inner join school s on u.school_id = s.id "
 				+ "where  "
-				+ "  " + cachedGameScoreFilterStudentScoreRank + "  "
+				+ "  " + gameScoreFilter + "  "
 				+ "group by u.id "
 				+ "order by total_score desc, u.id ";
 		
@@ -264,14 +264,14 @@ public class GameScoreAction extends BasicApiAction
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
 		json = gson.toJson(responseMap);
-		resultCacheForGameScoreFilterStudentScoreRank.cacheStringResult(json);
+		resultCacheRef.cacheStringResult(json);
 		return SUCCESS;
 	}
 
 	protected synchronized String schoolStudentNumRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
 													   StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
-		String cachedResult = resultCacheForGameScoreFilterSchoolStudentNumRank.getCachedResult();
+		String cachedResult = resultCacheRef.getCachedResult();
 		if (cachedResult != null) {
 			json = cachedResult;
 			return SUCCESS;
@@ -285,7 +285,7 @@ public class GameScoreAction extends BasicApiAction
 				+ "from user u "
 				+ "inner join school s on u.school_id = s.id "
 				+ "where "
-				+ "  " + cachedGameScoreFilterSchoolStudentNumRank + "  "
+				+ "  " + gameScoreFilter + "  "
 				+ "group by s.id "
 				+ "order by student_num desc, s.id ";
 		
@@ -293,7 +293,7 @@ public class GameScoreAction extends BasicApiAction
 		Query query = dbHelper.getHibernateSession().createNativeQuery(sqlStr);
 		responseMap.put("list", query.getResultList());
 		json = gson.toJson(responseMap);
-		resultCacheForGameScoreFilterSchoolStudentNumRank.cacheStringResult(json);
+		resultCacheRef.cacheStringResult(json);
 		return SUCCESS;
 	}
 	
