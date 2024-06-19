@@ -34,13 +34,13 @@ public class GameScoreAction extends BasicApiAction
 	public String json;
 	public String method;
 
-	private static String cachedGameScoreFilterStudentScoreRank = null;
-	private static String cachedGameScoreFilterSchoolStudentNumRank = null;
-	private static String cachedGameScoreFilterSchoolScoreRank = null;
-	private static String cachedGameScoreFilterSchoolScoreRankPri = null;
-	private static String cachedGameScoreFilterSchoolScoreRankSec = null;
-	private static String cachedGameScoreFilterCompetitionScorePri = null;
-	private static String cachedGameScoreFilterCompetitionScoreSec = null;
+	private static final StringResultCache cachedGameScoreFilterStudentScoreRank = new StringResultCache();
+	private static final StringResultCache cachedGameScoreFilterSchoolStudentNumRank = new StringResultCache();
+	private static final StringResultCache cachedGameScoreFilterSchoolScoreRank = new StringResultCache();
+	private static final StringResultCache cachedGameScoreFilterSchoolScoreRankPri = new StringResultCache();
+	private static final StringResultCache cachedGameScoreFilterSchoolScoreRankSec = new StringResultCache();
+	private static final StringResultCache cachedGameScoreFilterCompetitionScorePri = new StringResultCache();
+	private static final StringResultCache cachedGameScoreFilterCompetitionScoreSec = new StringResultCache();
 
 	private static final StringResultCache resultCacheForGameScoreFilterStudentScoreRank = new StringResultCache();
 	private static final StringResultCache resultCacheForGameScoreFilterSchoolStudentNumRank = new StringResultCache();
@@ -55,28 +55,62 @@ public class GameScoreAction extends BasicApiAction
 	{
 		EnhancedProperties ep = PropertiesHelper.getApplicationProperties(servletContext);
 
-		cachedGameScoreFilterStudentScoreRank = ep.getComplexProperty("gamescore.filter.studentscorerank", " u.roles = 'student' ");
-		cachedGameScoreFilterSchoolStudentNumRank = ep.getComplexProperty("gamescore.filter.schoolstudentnumrank", " u.roles = 'student' ");
-		cachedGameScoreFilterSchoolScoreRank = ep.getComplexProperty("gamescore.filter.schoolscorerank", " u.roles = 'student' ");
-		cachedGameScoreFilterSchoolScoreRankPri = ep.getComplexProperty("gamescore.filter.schoolscorerankpri", " u.roles = 'student' and u.school_level = 1 " );
-		cachedGameScoreFilterSchoolScoreRankSec = ep.getComplexProperty("gamescore.filter.schoolscoreranksec", " u.roles = 'student' and u.school_level = 2 " );
-		cachedGameScoreFilterCompetitionScorePri = ep.getComplexProperty("gamescore.filter.competitionscorepri", " u.roles = 'student' and u.school_level = 1 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " );
-		cachedGameScoreFilterCompetitionScoreSec = ep.getComplexProperty("gamescore.filter.competitionscoresec", " u.roles = 'student' and u.school_level = 2 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " );
+		String _cachedGameScoreFilterStudentScoreRank = cachedGameScoreFilterStudentScoreRank.getCachedResult();
+		if (_cachedGameScoreFilterStudentScoreRank == null) {
+			cachedGameScoreFilterStudentScoreRank.cacheStringResult(ep.getComplexProperty("gamescore.filter.studentscorerank", " u.roles = 'student' "));
+			_cachedGameScoreFilterStudentScoreRank = cachedGameScoreFilterStudentScoreRank.getCachedResult();
+		}
+
+		String _cachedGameScoreFilterSchoolStudentNumRank = cachedGameScoreFilterSchoolStudentNumRank.getCachedResult();
+		if (_cachedGameScoreFilterSchoolStudentNumRank == null) {
+			cachedGameScoreFilterSchoolStudentNumRank.cacheStringResult(ep.getComplexProperty("gamescore.filter.schoolstudentnumrank", " u.roles = 'student' "));
+			_cachedGameScoreFilterSchoolStudentNumRank = cachedGameScoreFilterSchoolStudentNumRank.getCachedResult();
+		}
+
+		String _cachedGameScoreFilterSchoolScoreRank = cachedGameScoreFilterSchoolScoreRank.getCachedResult();
+		if (_cachedGameScoreFilterSchoolScoreRank == null) {
+			cachedGameScoreFilterSchoolScoreRank.cacheStringResult(ep.getComplexProperty("gamescore.filter.schoolscorerank", " u.roles = 'student' "));
+			_cachedGameScoreFilterSchoolScoreRank = cachedGameScoreFilterSchoolScoreRank.getCachedResult();
+		}
+
+		String _cachedGameScoreFilterSchoolScoreRankPri = cachedGameScoreFilterSchoolScoreRankPri.getCachedResult();
+		if (_cachedGameScoreFilterSchoolScoreRankPri == null) {
+			cachedGameScoreFilterSchoolScoreRankPri.cacheStringResult(ep.getComplexProperty("gamescore.filter.schoolscorerankpri", " u.roles = 'student' and u.school_level = 1 " ));
+			_cachedGameScoreFilterSchoolScoreRankPri = cachedGameScoreFilterSchoolScoreRankPri.getCachedResult();
+		}
+
+		String _cachedGameScoreFilterSchoolScoreRankSec = cachedGameScoreFilterSchoolScoreRankSec.getCachedResult();
+		if (_cachedGameScoreFilterSchoolScoreRankSec == null) {
+			cachedGameScoreFilterSchoolScoreRankSec.cacheStringResult(ep.getComplexProperty("gamescore.filter.schoolscoreranksec", " u.roles = 'student' and u.school_level = 2 " ));
+			_cachedGameScoreFilterSchoolScoreRankSec = cachedGameScoreFilterSchoolScoreRankSec.getCachedResult();
+		}
+
+		String _cachedGameScoreFilterCompetitionScorePri = cachedGameScoreFilterCompetitionScorePri.getCachedResult();
+		if (_cachedGameScoreFilterCompetitionScorePri == null) {
+			cachedGameScoreFilterCompetitionScorePri.cacheStringResult(ep.getComplexProperty("gamescore.filter.competitionscorepri", " u.roles = 'student' and u.school_level = 1 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " ));
+			_cachedGameScoreFilterCompetitionScorePri = cachedGameScoreFilterCompetitionScorePri.getCachedResult();
+		}
+
+		String _cachedGameScoreFilterCompetitionScoreSec = cachedGameScoreFilterCompetitionScoreSec.getCachedResult();
+		if (_cachedGameScoreFilterCompetitionScoreSec == null) {
+			cachedGameScoreFilterCompetitionScoreSec.cacheStringResult(ep.getComplexProperty("gamescore.filter.competitionscoresec", " u.roles = 'student' and u.school_level = 2 and ((gs.finish_date like '2023-06-19%') or (gs.finish_date like '2023-06-20%')) " ));
+			_cachedGameScoreFilterCompetitionScoreSec = cachedGameScoreFilterCompetitionScoreSec.getCachedResult();
+		}
 
 		if ("studentScoreRank".equals(method)) {
-			return studentScoreRank(dbHelper, logger, responseMap);
+			return studentScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterStudentScoreRank, _cachedGameScoreFilterStudentScoreRank);
 		} else if ("schoolStudentNumRank".equals(method)) {
-			return schoolStudentNumRank(dbHelper, logger, responseMap);
+			return schoolStudentNumRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolStudentNumRank, _cachedGameScoreFilterSchoolStudentNumRank);
 		} else if ("schoolScoreRank".equals(method)) {
-			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRank, cachedGameScoreFilterSchoolScoreRank);
+			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRank, _cachedGameScoreFilterSchoolScoreRank);
 		} else if ("schoolScoreRankPri".equals(method)) {
-			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRankPri, cachedGameScoreFilterSchoolScoreRankPri);
+			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRankPri, _cachedGameScoreFilterSchoolScoreRankPri);
 		} else if ("schoolScoreRankSec".equals(method)) {
-			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRankSec, cachedGameScoreFilterSchoolScoreRankSec);
+			return schoolScoreRank(dbHelper, logger, responseMap, resultCacheForGameScoreFilterSchoolScoreRankSec, _cachedGameScoreFilterSchoolScoreRankSec);
 		} else if ("competitionScorePri".equals(method)) {
-			return competitionScore(dbHelper, logger, responseMap, resultCacheForGameScoreFilterCompetitionScorePri, cachedGameScoreFilterCompetitionScorePri);
+			return competitionScore(dbHelper, logger, responseMap, resultCacheForGameScoreFilterCompetitionScorePri, _cachedGameScoreFilterCompetitionScorePri);
 		} else if ("competitionScoreSec".equals(method)) {
-			return competitionScore(dbHelper, logger, responseMap, resultCacheForGameScoreFilterCompetitionScoreSec, cachedGameScoreFilterCompetitionScoreSec);
+			return competitionScore(dbHelper, logger, responseMap, resultCacheForGameScoreFilterCompetitionScoreSec, _cachedGameScoreFilterCompetitionScoreSec);
 		}
 
 		User user = (User)session.get("user");
@@ -198,7 +232,8 @@ public class GameScoreAction extends BasicApiAction
 		return ERROR;
 	}
 
-	protected synchronized String studentScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String studentScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
+												   StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
 		String cachedResult = resultCacheForGameScoreFilterStudentScoreRank.getCachedResult();
 		if (cachedResult != null) {
@@ -233,7 +268,8 @@ public class GameScoreAction extends BasicApiAction
 		return SUCCESS;
 	}
 
-	protected synchronized String schoolStudentNumRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap) throws Exception {
+	protected synchronized String schoolStudentNumRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
+													   StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
 		String cachedResult = resultCacheForGameScoreFilterSchoolStudentNumRank.getCachedResult();
 		if (cachedResult != null) {
@@ -262,7 +298,7 @@ public class GameScoreAction extends BasicApiAction
 	}
 	
 	protected synchronized String schoolScoreRank(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
-		StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
+												  StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
 		String cachedResult = resultCacheRef.getCachedResult();
 		if (cachedResult != null) {
@@ -292,7 +328,7 @@ public class GameScoreAction extends BasicApiAction
 	}
 
 	protected synchronized String competitionScore(DBHelper dbHelper, Logger logger, Map<String, Object> responseMap,
-	StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
+												   StringResultCache resultCacheRef, String gameScoreFilter) throws Exception {
 
 		String cachedResult = resultCacheRef.getCachedResult();
 		if (cachedResult != null) {
